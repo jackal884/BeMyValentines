@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Valentine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine 💖</title>
 
 <style>
     body {
@@ -11,18 +12,25 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        background: #ffe6eb;
-        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #ffd6e0, #ffeef2);
+        font-family: 'Segoe UI', sans-serif;
+        overflow: hidden;
     }
 
     .card {
         background: white;
-        padding: 30px;
+        padding: 25px;
         border-radius: 20px;
         text-align: center;
-        width: 350px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        width: 320px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         position: relative;
+        animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: scale(0.9);}
+        to {opacity: 1; transform: scale(1);}
     }
 
     img {
@@ -31,16 +39,18 @@
     }
 
     h2 {
-        color: #d6336c;
+        color: #e63973;
+        margin: 15px 0;
     }
 
     .btn {
         margin: 10px;
-        padding: 10px 20px;
+        padding: 12px 22px;
         border: none;
-        border-radius: 20px;
+        border-radius: 25px;
         cursor: pointer;
         font-size: 16px;
+        transition: 0.3s;
     }
 
     .yes {
@@ -48,23 +58,91 @@
         color: white;
     }
 
+    .yes:hover {
+        transform: scale(1.1);
+        background: #ff2e5f;
+    }
+
     .no {
         background: #ddd;
         position: absolute;
+        transition: transform 0.25s ease;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .success {
+        animation: pop 0.5s ease;
+    }
+
+    @keyframes pop {
+        0% {transform: scale(0.5);}
+        100% {transform: scale(1);}
     }
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="card" id="card">
     <img src="https://picsum.photos/300/200" alt="img">
-    <h2>Will you be my Valentine? ❤️</h2>
+    <h2 id="question">Will you be my Valentine? ❤️</h2>
 
-    <button class="btn yes" onclick="yesClick()">Yes</button>
+    <button class="btn yes" onclick="yesClick()">Yes 💖</button>
     <button class="btn no" id="noBtn">No 😢</button>
 </div>
 
+<!-- Sound -->
+<audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+
+<!-- Confetti library -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const sound = document.getElementById("sound");
+
+// Escape logic (smooth + smarter)
+function moveButton() {
+    const card = document.getElementById("card");
+    const rect = card.getBoundingClientRect();
+
+    const maxX = rect.width - 100;
+    const maxY = rect.height - 100;
+
+    const x = Math.random() * maxX - maxX/2;
+    const y = Math.random() * maxY - maxY/2;
+
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+}
+
+// Works for mouse + touch
+noBtn.addEventListener("mouseover", moveButton);
+noBtn.addEventListener("touchstart", moveButton);
+
+// YES CLICK
+function yesClick() {
+    sound.play();
+
+    const card = document.getElementById("card");
+    card.innerHTML = `
+        <h2 class="success">YAYYY 😭❤️</h2>
+        <p>You just made my day 💖</p>
+    `;
+
+    // Confetti burst 🎉
+    confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 }
+    });
+}
+</script>
+
+</body>
+</html>
 <script>
 const noBtn = document.getElementById("noBtn");
 
