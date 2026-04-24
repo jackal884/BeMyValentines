@@ -6,103 +6,89 @@
 <title>Valentine 💖</title>
 
 <style>
-body {
-    margin: 0;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, #ffd6e0, #ffeef2);
-    overflow: hidden;
-    transition: background 0.4s ease;
-}
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #ffd6e0, #ffeef2);
+        font-family: 'Segoe UI', sans-serif;
+        overflow: hidden;
+        transition: background 0.4s ease;
+    }
 
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 20px;
-    text-align: center;
-    width: 90%;
-    max-width: 320px;
-    position: relative;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-}
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 20px;
+        text-align: center;
+        width: 90%;
+        max-width: 320px;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        position: relative;
+    }
 
-h2 { color: #e63973; }
+    img {
+        width: 100%;
+        border-radius: 15px;
+    }
 
-.btn {
-    margin: 10px;
-    padding: 12px 20px;
-    border-radius: 25px;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
+    h2 {
+        color: #e63973;
+    }
 
-.yes {
-    background: #ff4d6d;
-    color: white;
-}
+    .btn {
+        margin: 10px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 25px;
+        cursor: pointer;
+        font-size: 16px;
+    }
 
-.no {
-    background: #ddd;
-    position: absolute;
-    transition: transform 0.25s ease, scale 0.2s ease;
-}
+    .yes {
+        background: #ff4d6d;
+        color: white;
+    }
 
-/* emoji animation */
-.emoji {
-    position: fixed;
-    font-size: 24px;
-    animation: floatUp 2s linear forwards;
-    pointer-events: none;
-}
+    .no {
+        background: #ddd;
+        position: absolute;
+        transition: transform 0.25s ease;
+    }
 
-@keyframes floatUp {
-    0% {opacity: 1; transform: translateY(0);}
-    100% {opacity: 0; transform: translateY(-150px);}
-}
+    .controls {
+        position: fixed;
+        bottom: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
 
-.message {
-    font-size: 14px;
-    color: #555;
-    margin-top: 10px;
-    min-height: 30px;
-}
+    .color-btn {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
+    }
 
-/* background controls */
-.controls {
-    position: fixed;
-    bottom: 15px;
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.color-btn {
-    width: 25px;
-    height: 25px;
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-}
 </style>
 </head>
 
 <body>
 
 <div class="card" id="card">
+    <img src="https://picsum.photos/300/200" alt="img">
     <h2>Will you be my Valentine? ❤️</h2>
 
     <button class="btn yes" onclick="yesClick()">Yes 💖</button>
     <button class="btn no" id="noBtn">No 😢</button>
-
-    <div class="message" id="msg"></div>
 </div>
 
-<!-- background controls -->
+<!-- Background Controls -->
 <div class="controls">
     <input type="color" onchange="setCustomColor(this.value)">
     <button class="color-btn" style="background:#ffd6e0" onclick="setBG('#ffd6e0','#ffeef2')"></button>
@@ -115,36 +101,11 @@ h2 { color: #e63973; }
 
 <script>
 const noBtn = document.getElementById("noBtn");
-const msg = document.getElementById("msg");
 const card = document.getElementById("card");
 
-let scale = 1;
-
-// fallback smart responses (AI-like)
-const fallbackResponses = [
-    "Hmm… I feel like you want to say yes 😌",
-    "You’re smiling right now, aren’t you? 😏",
-    "Be honest… I’m convincing 😎",
-    "Okay this is getting interesting 😂",
-    "You keep coming back 👀",
-    "At this point… it’s fate ❤️",
-    "You’re resisting but I see through it 😌",
-    "Plot twist: you already like me 😏"
-];
-
-// OPTIONAL REAL AI (plug your API later)
-async function getAIResponse() {
-    try {
-        // 🔑 Replace with your API later
-        return fallbackResponses[Math.floor(Math.random()*fallbackResponses.length)];
-    } catch {
-        return fallbackResponses[Math.floor(Math.random()*fallbackResponses.length)];
-    }
-}
-
-const emojis = ["💖","🥺","😭","😏","❤️","😢","✨","🔥"];
-
-async function moveButton(e) {
+// SAFE movement (always inside card)
+function moveButton() {
+    const cardRect = card.getBoundingClientRect();
     const btnRect = noBtn.getBoundingClientRect();
 
     const maxX = card.clientWidth - btnRect.width - 20;
@@ -154,35 +115,16 @@ async function moveButton(e) {
     const y = Math.random() * maxY - (card.clientHeight/2 - btnRect.height/2);
 
     noBtn.style.transform = `translate(${x}px, ${y}px)`;
-
-    // slower shrink
-    scale *= 0.95;
-    noBtn.style.scale = scale;
-
-    // AI response
-    msg.textContent = await getAIResponse();
-
-    spawnEmoji(e);
 }
 
-function spawnEmoji(e) {
-    const emoji = document.createElement("div");
-    emoji.className = "emoji";
-    emoji.textContent = emojis[Math.floor(Math.random()*emojis.length)];
-
-    emoji.style.left = (e.touches ? e.touches[0].clientX : e.clientX) + "px";
-    emoji.style.top = (e.touches ? e.touches[0].clientY : e.clientY) + "px";
-
-    document.body.appendChild(emoji);
-    setTimeout(() => emoji.remove(), 2000);
-}
-
+// Desktop + Mobile safe triggers
 noBtn.addEventListener("mouseenter", moveButton);
 noBtn.addEventListener("touchstart", (e) => {
     e.preventDefault();
-    moveButton(e);
+    moveButton();
 });
 
+// YES click
 function yesClick() {
     card.innerHTML = `
         <h2>YAYYY 😭❤️</h2>
@@ -190,16 +132,17 @@ function yesClick() {
     `;
 
     confetti({
-        particleCount: 200,
-        spread: 80,
+        particleCount: 150,
+        spread: 70,
         origin: { y: 0.6 }
     });
 }
 
-// background
+// Background functions
 function setBG(c1, c2) {
     document.body.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
 }
+
 function setCustomColor(color) {
     document.body.style.background = color;
 }
