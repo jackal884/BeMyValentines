@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -15,22 +15,18 @@
         background: linear-gradient(135deg, #ffd6e0, #ffeef2);
         font-family: 'Segoe UI', sans-serif;
         overflow: hidden;
+        transition: background 0.4s ease;
     }
 
     .card {
         background: white;
-        padding: 25px;
+        padding: 20px;
         border-radius: 20px;
         text-align: center;
-        width: 320px;
+        width: 90%;
+        max-width: 320px;
         box-shadow: 0 15px 40px rgba(0,0,0,0.15);
         position: relative;
-        animation: fadeIn 1s ease;
-    }
-
-    @keyframes fadeIn {
-        from {opacity: 0; transform: scale(0.9);}
-        to {opacity: 1; transform: scale(1);}
     }
 
     img {
@@ -40,27 +36,20 @@
 
     h2 {
         color: #e63973;
-        margin: 15px 0;
     }
 
     .btn {
         margin: 10px;
-        padding: 12px 22px;
+        padding: 12px 20px;
         border: none;
         border-radius: 25px;
         cursor: pointer;
         font-size: 16px;
-        transition: 0.3s;
     }
 
     .yes {
         background: #ff4d6d;
         color: white;
-    }
-
-    .yes:hover {
-        transform: scale(1.1);
-        background: #ff2e5f;
     }
 
     .no {
@@ -69,18 +58,23 @@
         transition: transform 0.25s ease;
     }
 
-    .hidden {
-        display: none;
+    .controls {
+        position: fixed;
+        bottom: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
-    .success {
-        animation: pop 0.5s ease;
+    .color-btn {
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        border: none;
+        cursor: pointer;
     }
 
-    @keyframes pop {
-        0% {transform: scale(0.5);}
-        100% {transform: scale(1);}
-    }
 </style>
 </head>
 
@@ -88,73 +82,69 @@
 
 <div class="card" id="card">
     <img src="https://picsum.photos/300/200" alt="img">
-    <h2 id="question">Will you be my Valentine? ❤️</h2>
+    <h2>Will you be my Valentine? ❤️</h2>
 
     <button class="btn yes" onclick="yesClick()">Yes 💖</button>
     <button class="btn no" id="noBtn">No 😢</button>
 </div>
 
-<!-- Sound -->
-<audio id="sound" src="https://www.soundjay.com/buttons/sounds/button-09.mp3"></audio>
+<!-- Background Controls -->
+<div class="controls">
+    <input type="color" onchange="setCustomColor(this.value)">
+    <button class="color-btn" style="background:#ffd6e0" onclick="setBG('#ffd6e0','#ffeef2')"></button>
+    <button class="color-btn" style="background:#cdb4db" onclick="setBG('#cdb4db','#ffc8dd')"></button>
+    <button class="color-btn" style="background:#a2d2ff" onclick="setBG('#a2d2ff','#bde0fe')"></button>
+    <button class="color-btn" style="background:#d8f3dc" onclick="setBG('#d8f3dc','#b7e4c7')"></button>
+</div>
 
-<!-- Confetti library -->
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
 const noBtn = document.getElementById("noBtn");
-const sound = document.getElementById("sound");
+const card = document.getElementById("card");
 
-// Escape logic (smooth + smarter)
+// SAFE movement (always inside card)
 function moveButton() {
-    const card = document.getElementById("card");
-    const rect = card.getBoundingClientRect();
+    const cardRect = card.getBoundingClientRect();
+    const btnRect = noBtn.getBoundingClientRect();
 
-    const maxX = rect.width - 100;
-    const maxY = rect.height - 100;
+    const maxX = card.clientWidth - btnRect.width - 20;
+    const maxY = card.clientHeight - btnRect.height - 20;
 
-    const x = Math.random() * maxX - maxX/2;
-    const y = Math.random() * maxY - maxY/2;
+    const x = Math.random() * maxX - (card.clientWidth/2 - btnRect.width/2);
+    const y = Math.random() * maxY - (card.clientHeight/2 - btnRect.height/2);
 
     noBtn.style.transform = `translate(${x}px, ${y}px)`;
 }
 
-// Works for mouse + touch
-noBtn.addEventListener("mouseover", moveButton);
-noBtn.addEventListener("touchstart", moveButton);
+// Desktop + Mobile safe triggers
+noBtn.addEventListener("mouseenter", moveButton);
+noBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveButton();
+});
 
-// YES CLICK
+// YES click
 function yesClick() {
-    sound.play();
-
-    const card = document.getElementById("card");
     card.innerHTML = `
-        <h2 class="success">YAYYY 😭❤️</h2>
+        <h2>YAYYY 😭❤️</h2>
         <p>You just made my day 💖</p>
     `;
 
-    // Confetti burst 🎉
     confetti({
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 }
     });
 }
-</script>
 
-</body>
-</html>
-<script>
-const noBtn = document.getElementById("noBtn");
+// Background functions
+function setBG(c1, c2) {
+    document.body.style.background = `linear-gradient(135deg, ${c1}, ${c2})`;
+}
 
-noBtn.addEventListener("mouseover", () => {
-    const x = Math.random() * 300 - 100;
-    const y = Math.random() * 200 - 100;
-
-    noBtn.style.transform = `translate(${x}px, ${y}px)`;
-});
-
-function yesClick() {
-    alert("Yayyy ❤️ She said YES!");
+function setCustomColor(color) {
+    document.body.style.background = color;
 }
 </script>
 
